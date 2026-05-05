@@ -11,6 +11,7 @@ model Donation {
   amount      Float
   donorName   String?
   donorEmail  String?
+  donorPhone  String?
   blessing    String?
   slipUrl     String?
   taxId       String?

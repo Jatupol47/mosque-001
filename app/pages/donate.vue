@@ -12,6 +12,8 @@ const pageData = computed(() => settings.value?.page_donate || {
 const form = ref({
     amount: '',
     donorName: '',
+    donorEmail: '',
+    donorPhone: '',
     blessing: '',
     slipUrl: '',
     requestTaxInvoice: false,
@@ -21,6 +23,9 @@ const form = ref({
 
 const isUploading = ref(false)
 const isSubmitting = ref(false)
+const showTaxModal = ref(false)
+const showSuccessModal = ref(false)
+const donationResult = ref<any>(null)
 const localSlipPreview = ref('')
 
 async function handleSlipUpload(event: any) {
@@ -61,19 +66,38 @@ async function submitDonation() {
 
     isSubmitting.value = true
     try {
-        await $fetch('/api/donate', {
+        const response: any = await $fetch('/api/donate', {
             method: 'POST',
             body: form.value
         })
-        alert('ส่งข้อมูลการบริจาคเรียบร้อยแล้ว! ขออัลลอฮ์ทรงตอบแทนความดีท่าน 🎉')
+        
+        donationResult.value = response.donation
+        showSuccessModal.value = true
+        
         // Reset form
-        form.value = { amount: '', donorName: '', blessing: '', slipUrl: '' }
+        form.value = { 
+            amount: '', 
+            donorName: '', 
+            donorEmail: '',
+            donorPhone: '',
+            blessing: '', 
+            slipUrl: '',
+            requestTaxInvoice: false,
+            taxId: '',
+            address: ''
+        }
         localSlipPreview.value = ''
     } catch (error: any) {
         alert('เกิดข้อผิดพลาด: ' + error.message)
     } finally {
         isSubmitting.value = false
     }
+}
+
+function printReceipt() {
+    setTimeout(() => {
+        window.print()
+    }, 500)
 }
 </script>
 
@@ -134,23 +158,33 @@ async function submitDonation() {
                         </div>
 
                         <div class="space-y-4">
-                            <div class="flex items-center gap-3 p-4 bg-slate-50 rounded-2xl border border-slate-100 cursor-pointer hover:bg-slate-100 transition-all" @click="form.requestTaxInvoice = !form.requestTaxInvoice">
-                                <div class="w-6 h-6 rounded-md border-2 flex items-center justify-center transition-all" :class="form.requestTaxInvoice ? 'bg-emerald-500 border-emerald-500' : 'bg-white border-slate-300'">
-                                    <span v-if="form.requestTaxInvoice" class="text-white text-xs">✓</span>
+                            <button 
+                                type="button"
+                                @click="showTaxModal = true"
+                                class="w-full flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100 hover:bg-slate-100 transition-all group"
+                            >
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 bg-white rounded-xl shadow-sm flex items-center justify-center text-xl group-hover:scale-110 transition-transform">📄</div>
+                                    <div class="text-left">
+                                        <p class="text-sm font-bold text-slate-700">ขอใบกำกับภาษี / ใบอนุโมทนาบัตร</p>
+                                        <p class="text-[10px] text-slate-400 font-medium">กรอกข้อมูลเพื่อลดหย่อนภาษี</p>
+                                    </div>
                                 </div>
-                                <span class="text-sm font-bold text-slate-700">ต้องการใบกำกับภาษี / ใบอนุโมทนาบัตร</span>
-                            </div>
+                                <div v-if="form.requestTaxInvoice" class="w-6 h-6 bg-emerald-500 text-white rounded-full flex items-center justify-center text-[10px]">✓</div>
+                                <div v-else class="text-slate-300">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                                </div>
+                            </button>
 
                             <transition name="fade">
-                                <div v-if="form.requestTaxInvoice" class="space-y-4 p-6 bg-emerald-50/50 rounded-[2rem] border border-emerald-100">
-                                    <div class="space-y-2">
-                                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest">เลขประจำตัวผู้เสียภาษี / เลขบัตรประชาชน</label>
-                                        <input v-model="form.taxId" type="text" placeholder="ระบุเลข 13 หลัก..." class="w-full px-5 py-4 bg-white border-none rounded-2xl focus:ring-2 focus:ring-emerald-500/20 outline-none font-bold shadow-sm" />
+                                <div v-if="form.requestTaxInvoice" class="p-4 bg-emerald-50/50 rounded-2xl border border-emerald-100 flex items-center justify-between">
+                                    <div class="flex items-center gap-3">
+                                        <div class="text-emerald-500">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                                        </div>
+                                        <p class="text-xs font-bold text-emerald-700">บันทึกข้อมูลใบกำกับภาษีแล้ว</p>
                                     </div>
-                                    <div class="space-y-2">
-                                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest">ที่อยู่สำหรับการจัดส่ง / ออกเอกสาร</label>
-                                        <textarea v-model="form.address" rows="3" placeholder="ระบุที่อยู่โดยละเอียด..." class="w-full px-5 py-4 bg-white border-none rounded-2xl focus:ring-2 focus:ring-emerald-500/20 outline-none font-medium shadow-sm"></textarea>
-                                    </div>
+                                    <button type="button" @click="form.requestTaxInvoice = false" class="text-[10px] font-bold text-slate-400 hover:text-rose-500 uppercase tracking-widest">ยกเลิก</button>
                                 </div>
                             </transition>
                         </div>
@@ -196,4 +230,164 @@ async function submitDonation() {
             </div>
         </div>
     </div>
+
+    <!-- Tax Invoice Modal -->
+    <Teleport to="body">
+        <transition name="fade">
+            <div v-if="showTaxModal" class="fixed inset-0 z-[100] flex items-center justify-center p-6">
+                <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" @click="showTaxModal = false"></div>
+                <div class="bg-white w-full max-w-lg rounded-[2.5rem] shadow-2xl relative overflow-hidden">
+                    <div class="h-2 bg-emerald-500 w-full"></div>
+                    <div class="p-8 md:p-10">
+                        <div class="flex items-center justify-between mb-8">
+                            <div>
+                                <h3 class="text-2xl font-black text-slate-800">ข้อมูลใบกำกับภาษี</h3>
+                                <p class="text-sm text-slate-400 font-medium">กรุณากรอกข้อมูลให้ครบถ้วนเพื่อความถูกต้อง</p>
+                            </div>
+                            <button @click="showTaxModal = false" class="w-10 h-10 bg-slate-50 text-slate-400 rounded-full flex items-center justify-center hover:bg-slate-100 transition-all">✕</button>
+                        </div>
+
+                        <div class="space-y-6">
+                            <div class="space-y-2">
+                                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest">ชื่อ-นามสกุล (ตามบัตรประชาชน)</label>
+                                <input v-model="form.donorName" type="text" placeholder="ระบุชื่อ-นามสกุล..." class="w-full px-5 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-emerald-500/20 outline-none font-bold shadow-sm" />
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="space-y-2">
+                                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest">เบอร์โทรศัพท์</label>
+                                    <input v-model="form.donorPhone" type="tel" placeholder="08X-XXX-XXXX" class="w-full px-5 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-emerald-500/20 outline-none font-bold shadow-sm" />
+                                </div>
+                                <div class="space-y-2">
+                                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest">อีเมล์</label>
+                                    <input v-model="form.donorEmail" type="email" placeholder="example@mail.com" class="w-full px-5 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-emerald-500/20 outline-none font-bold shadow-sm" />
+                                </div>
+                            </div>
+
+                            <div class="space-y-2">
+                                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest">เลขประจำตัวผู้เสียภาษี</label>
+                                <input v-model="form.taxId" type="text" placeholder="เลข 13 หลัก..." class="w-full px-5 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-emerald-500/20 outline-none font-bold shadow-sm" />
+                            </div>
+
+                            <div class="space-y-2">
+                                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest">ที่อยู่สำหรับการจัดส่งเอกสาร</label>
+                                <textarea v-model="form.address" rows="3" placeholder="ระบุที่อยู่โดยละเอียด..." class="w-full px-5 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-emerald-500/20 outline-none font-medium shadow-sm"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="mt-10 flex gap-4">
+                            <button @click="showTaxModal = false" class="flex-1 py-4 bg-slate-100 text-slate-600 font-bold rounded-2xl hover:bg-slate-200 transition-all">ยกเลิก</button>
+                            <button @click="form.requestTaxInvoice = true; showTaxModal = false" class="flex-1 py-4 bg-emerald-500 text-white font-bold rounded-2xl shadow-lg shadow-emerald-500/20 hover:bg-emerald-600 transition-all">บันทึกข้อมูล</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </transition>
+
+        <!-- Success Modal & Receipt -->
+        <transition name="fade">
+            <div v-if="showSuccessModal" class="fixed inset-0 z-[110] flex items-center justify-center p-6">
+                <div class="absolute inset-0 bg-emerald-900/40 backdrop-blur-md"></div>
+                
+                <div class="bg-white w-full max-w-lg rounded-[3rem] shadow-2xl relative overflow-hidden print:shadow-none print:m-0">
+                    <!-- Print Only Header -->
+                    <div class="hidden print:block p-8 text-center border-b-2 border-emerald-500">
+                        <h1 class="text-2xl font-black text-emerald-700 uppercase">ใบเสร็จรับเงิน/หลักฐานการบริจาค</h1>
+                        <p class="text-sm font-bold text-slate-500">มัสยิดบ้านสมเด็จ (Bang Somdet Mosque)</p>
+                    </div>
+
+                    <div class="p-8 md:p-12 text-center">
+                        <div class="w-20 h-20 bg-emerald-100 text-emerald-500 rounded-full flex items-center justify-center text-4xl mx-auto mb-6 print:hidden">
+                            🎉
+                        </div>
+                        
+                        <h3 class="text-2xl font-black text-slate-800 mb-2 print:text-xl">บริจาคสำเร็จ!</h3>
+                        <p class="text-slate-500 font-medium mb-8 print:mb-4">ขออัลลอฮ์ทรงตอบแทนความดีงามแก่ท่าน</p>
+
+                        <div class="bg-slate-50 rounded-[2rem] p-6 mb-8 text-left space-y-3 border border-slate-100 print:bg-white print:border-none print:p-0">
+                            <div class="flex justify-between items-center border-b border-slate-200 pb-3 mb-3 print:border-slate-100">
+                                <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">เลขที่อ้างอิง</span>
+                                <span class="text-sm font-bold text-slate-700 font-mono">#{{ donationResult?.id?.toString().padStart(6, '0') }}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-xs font-bold text-slate-400">ชื่อผู้บริจาค:</span>
+                                <span class="text-sm font-bold text-slate-700">{{ donationResult?.donorName || 'ผู้ไม่ประสงค์ออกนาม' }}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-xs font-bold text-slate-400">จำนวนเงิน:</span>
+                                <span class="text-lg font-black text-emerald-600">{{ donationResult?.amount?.toLocaleString() }} บาท</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-xs font-bold text-slate-400">วันที่:</span>
+                                <span class="text-sm font-bold text-slate-700">{{ new Date(donationResult?.date).toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' }) }}</span>
+                            </div>
+                            <div v-if="donationResult?.taxId" class="flex justify-between pt-3 border-t border-dashed border-slate-200 print:border-slate-100">
+                                <span class="text-xs font-bold text-slate-400">เลขผู้เสียภาษี:</span>
+                                <span class="text-sm font-bold text-slate-700">{{ donationResult?.taxId }}</span>
+                            </div>
+                            
+                            <!-- หลักฐานสลิปในใบเสร็จ -->
+                            <div class="pt-4 border-t border-slate-200 print:border-slate-100 mt-4">
+                                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">หลักฐานการโอนเงิน</p>
+                                <div class="w-full h-40 bg-white rounded-xl overflow-hidden border border-slate-200">
+                                    <img :src="donationResult?.slipUrl" class="w-full h-full object-contain" alt="สลิปการโอนเงิน" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-col gap-3 print:hidden">
+                            <button @click="printReceipt" class="w-full py-4 bg-slate-900 text-white font-black rounded-2xl shadow-xl hover:bg-slate-800 transition-all flex items-center justify-center gap-2">
+                                <span>🖨️</span> พิมพ์ใบเสร็จ / บันทึกเป็น PDF
+                            </button>
+                            <button @click="showSuccessModal = false" class="w-full py-4 bg-emerald-50 text-emerald-600 font-bold rounded-2xl hover:bg-emerald-100 transition-all">
+                                กลับสู่หน้าหลัก
+                            </button>
+                        </div>
+
+                        <div class="hidden print:block mt-12 text-center text-[10px] text-slate-400 italic">
+                            * เอกสารนี้เป็นเพียงหลักฐานการแจ้งบริจาคเบื้องต้น *
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </transition>
+    </Teleport>
 </template>
+
+<style scoped>
+.fade-enter-active, .fade-leave-active {
+    transition: opacity 0.3s ease;
+}
+.fade-enter-from, .fade-leave-to {
+    opacity: 0;
+}
+
+@media print {
+    body * {
+        visibility: hidden;
+    }
+    .print\:block {
+        display: block !important;
+    }
+    .fixed, .fixed * {
+        visibility: visible;
+    }
+    .fixed {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        padding: 0;
+        margin: 0;
+    }
+    .bg-emerald-900\/40 {
+        display: none !important;
+    }
+    .max-w-lg {
+        max-width: 100% !important;
+    }
+    button {
+        display: none !important;
+    }
+}
+</style>

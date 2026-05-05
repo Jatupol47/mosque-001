@@ -33,10 +33,39 @@ export default defineEventHandler(async (event) => {
       })
     }
 
+    // Visitor Logs
+    const visitorCount = await prisma.visitorLog.count()
+    if (visitorCount === 0) {
+      const paths = ['/', '/activities', '/history', '/donate', '/timetable']
+      const logs = []
+      
+      // Generate logs for the last 10 days
+      for (let i = 0; i < 10; i++) {
+        const date = new Date()
+        date.setDate(date.getDate() - i)
+        
+        // Random number of visits per day
+        const visits = Math.floor(Math.random() * 20) + 5
+        for (let j = 0; j < visits; j++) {
+          logs.push({
+            path: paths[Math.floor(Math.random() * paths.length)],
+            userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            ip: `192.168.1.${Math.floor(Math.random() * 100)}`,
+            createdAt: new Date(date.getTime() - Math.random() * 86400000)
+          })
+        }
+      }
+
+      await prisma.visitorLog.createMany({
+        data: logs
+      })
+    }
+
     return { 
       success: true, 
-      message: count === 0 ? 'สร้างข้อมูลจำลองเรียบร้อยแล้ว' : 'มีข้อมูลอยู่ในระบบแล้ว',
-      added: count === 0 ? sampleDonations.length : 0
+      message: (count === 0 || visitorCount === 0) ? 'สร้างข้อมูลจำลองเรียบร้อยแล้ว' : 'มีข้อมูลอยู่ในระบบแล้ว',
+      addedDonations: count === 0 ? sampleDonations.length : 0,
+      addedVisitors: visitorCount === 0 ? 100 : 0
     }
   } catch (error: any) {
     console.error('Seed Error:', error)

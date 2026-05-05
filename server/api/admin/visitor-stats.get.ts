@@ -7,7 +7,7 @@ export default defineEventHandler(async (event) => {
     const last7Days = new Date(today)
     last7Days.setDate(last7Days.getDate() - 7)
 
-    const [totalVisits, todayVisits, topPages] = await Promise.all([
+    const [totalVisits, todayVisits, topPages, recentVisitors] = await Promise.all([
       prisma.visitorLog.count(),
       prisma.visitorLog.count({
         where: {
@@ -25,6 +25,12 @@ export default defineEventHandler(async (event) => {
           _count: {
             path: 'desc'
           }
+        },
+        take: 10
+      }),
+      prisma.visitorLog.findMany({
+        orderBy: {
+          createdAt: 'desc'
         },
         take: 10
       })
@@ -51,7 +57,8 @@ export default defineEventHandler(async (event) => {
       totalVisits,
       todayVisits,
       recentStats,
-      topPages
+      topPages,
+      recentVisitors
     }
   } catch (error) {
     console.error('[Stats API] Main Error:', error)
@@ -60,6 +67,7 @@ export default defineEventHandler(async (event) => {
       todayVisits: 0,
       recentStats: [],
       topPages: [],
+      recentVisitors: [],
       error: error.message
     }
   }
