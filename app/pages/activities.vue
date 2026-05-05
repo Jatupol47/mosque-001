@@ -10,6 +10,7 @@ const pageData = computed(() => settings.value?.page_activities || {
 // สถานะสำหรับการแสดง Popup
 const selectedActivity = ref<any>(null)
 const isModalOpen = ref(false)
+const expandedImageIndex = ref<number | null>(null)
 
 const openModal = (act: any) => {
     selectedActivity.value = act
@@ -19,7 +20,41 @@ const openModal = (act: any) => {
 
 const closeModal = () => {
     isModalOpen.value = false
+    selectedActivity.value = null
     document.body.style.overflow = 'auto'
+}
+
+const openLightbox = (index: number) => {
+    expandedImageIndex.value = index
+}
+
+const closeLightbox = () => {
+    expandedImageIndex.value = null
+}
+
+const nextImage = (e?: Event) => {
+    e?.stopPropagation()
+    if (expandedImageIndex.value !== null && selectedActivity.value?.images) {
+        expandedImageIndex.value = (expandedImageIndex.value + 1) % selectedActivity.value.images.length
+    }
+}
+
+const prevImage = (e?: Event) => {
+    e?.stopPropagation()
+    if (expandedImageIndex.value !== null && selectedActivity.value?.images) {
+        expandedImageIndex.value = (expandedImageIndex.value - 1 + selectedActivity.value.images.length) % selectedActivity.value.images.length
+    }
+}
+
+// Keyboard navigation for lightbox
+if (import.meta.client) {
+    window.addEventListener('keydown', (e) => {
+        if (expandedImageIndex.value !== null) {
+            if (e.key === 'ArrowRight') nextImage()
+            if (e.key === 'ArrowLeft') prevImage()
+            if (e.key === 'Escape') closeLightbox()
+        }
+    })
 }
 
 // ฟังก์ชันสำหรับจัดรูปแบบวันที่และเวลาแบบไทย (พ.ศ.)
@@ -176,6 +211,21 @@ const formatTime = (dateStr: string) => {
                                 </p>
                             </div>
 
+                            <!-- อัลบั้มรูปภาพเพิ่มเติม -->
+                            <div v-if="selectedActivity.images?.length" class="mt-12">
+                                <h4 class="text-xs font-black text-slate-400 uppercase tracking-widest mb-6">อัลบั้มรูปภาพกิจกรรม</h4>
+                                <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                                    <div 
+                                        v-for="(img, imgIdx) in selectedActivity.images" 
+                                        :key="imgIdx"
+                                        class="aspect-video bg-slate-100 rounded-2xl overflow-hidden border border-slate-100 shadow-sm hover:shadow-xl transition-all cursor-zoom-in group"
+                                        @click="openLightbox(imgIdx)"
+                                    >
+                                        <img :src="img" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                                    </div>
+                                </div>
+                            </div>
+
                             <div class="mt-8 md:mt-12 pt-8 md:pt-10 border-t border-slate-100">
                                 <button @click="closeModal" class="w-full sm:w-auto px-10 py-4 bg-slate-100 text-slate-600 font-black rounded-2xl hover:bg-slate-200 transition-all active:scale-95 text-xs uppercase tracking-widest">
                                     ปิดหน้าต่างนี้
@@ -186,6 +236,55 @@ const formatTime = (dateStr: string) => {
                 </div>
             </div>
         </Transition>
+
+        <!-- Lightbox (แสดงรูปขยายพร้อมปุ่มเลื่อน) -->
+        <Teleport to="body">
+            <Transition
+                enter-active-class="transition duration-300 ease-out"
+                enter-from-class="opacity-0 scale-95"
+                enter-to-class="opacity-100 scale-100"
+                leave-active-class="transition duration-200 ease-in"
+                leave-from-class="opacity-100 scale-100"
+                leave-to-class="opacity-0 scale-95"
+            >
+                <div v-if="expandedImageIndex !== null" class="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/95 backdrop-blur-2xl" @click="closeLightbox">
+                    <!-- ปุ่มปิด -->
+                    <button @click="closeLightbox" class="absolute top-6 right-6 text-white text-4xl hover:text-rose-500 transition-colors z-30">✕</button>
+                    
+                    <!-- ปุ่มย้อนกลับ -->
+                    <button 
+                        v-if="selectedActivity.images?.length > 1"
+                        @click="prevImage" 
+                        class="absolute left-4 md:left-10 w-12 h-12 md:w-16 md:h-16 bg-white/10 hover:bg-white/20 text-white rounded-full flex items-center justify-center transition-all z-30 backdrop-blur-md border border-white/10"
+                    >
+                        <span class="text-2xl md:text-3xl">❮</span>
+                    </button>
+
+                    <!-- รูปภาพ -->
+                    <div class="relative w-full h-full flex items-center justify-center p-4 md:p-20">
+                        <img 
+                            :src="selectedActivity.images[expandedImageIndex]" 
+                            class="max-w-full max-h-full object-contain rounded-xl shadow-2xl select-none" 
+                            @click.stop 
+                        />
+                        
+                        <!-- ตัวเลขบอกลำดับ -->
+                        <div class="absolute bottom-10 left-1/2 -translate-x-1/2 px-6 py-2 bg-white/10 backdrop-blur-md rounded-full text-white font-bold text-sm border border-white/10">
+                            {{ expandedImageIndex + 1 }} / {{ selectedActivity.images?.length }}
+                        </div>
+                    </div>
+
+                    <!-- ปุ่มถัดไป -->
+                    <button 
+                        v-if="selectedActivity.images?.length > 1"
+                        @click="nextImage" 
+                        class="absolute right-4 md:right-10 w-12 h-12 md:w-16 md:h-16 bg-white/10 hover:bg-white/20 text-white rounded-full flex items-center justify-center transition-all z-30 backdrop-blur-md border border-white/10"
+                    >
+                        <span class="text-2xl md:text-3xl">❯</span>
+                    </button>
+                </div>
+            </Transition>
+        </Teleport>
     </div>
 </template>
 

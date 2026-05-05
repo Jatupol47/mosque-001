@@ -377,9 +377,19 @@
                       <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest">สถานที่</label>
                       <input v-model="act.location" type="text" placeholder="ระบุสถานที่..." class="w-full px-5 py-3.5 bg-white border border-slate-100 rounded-2xl focus:ring-2 focus:ring-emerald-500/10 outline-none" />
                     </div>
-                    <div class="md:col-span-2 space-y-2">
-                      <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest">รายละเอียด</label>
-                      <textarea v-model="act.description" rows="3" placeholder="ระบุรายละเอียดกิจกรรม..." class="w-full px-5 py-3.5 bg-white border border-slate-100 rounded-2xl focus:ring-2 focus:ring-emerald-500/10 outline-none text-sm"></textarea>
+                    <div class="md:col-span-2 space-y-4">
+                      <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block">อัลบั้มรูปภาพกิจกรรม (เพิ่มได้หลายรูป)</label>
+                      <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-4">
+                        <div v-for="(img, imgIdx) in act.images || []" :key="imgIdx" class="aspect-square bg-slate-200 rounded-2xl overflow-hidden relative group/img border-2 border-white shadow-sm">
+                          <img :src="img" class="w-full h-full object-cover" />
+                          <button @click="removeActivityImage(idx, imgIdx)" class="absolute top-1 right-1 w-6 h-6 bg-rose-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover/img:opacity-100 transition-opacity">✕</button>
+                        </div>
+                        <label class="aspect-square bg-white border-2 border-dashed border-slate-200 rounded-2xl flex flex-col items-center justify-center cursor-pointer hover:bg-slate-50 transition-all hover:border-emerald-300 group/add">
+                          <span class="text-2xl group-hover/add:scale-110 transition-transform">➕</span>
+                          <span class="text-[8px] font-black text-slate-400 uppercase mt-1">เพิ่มรูป</span>
+                          <input type="file" multiple @change="(e) => handleActivityAlbumUpload(e, idx)" class="hidden" />
+                        </label>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -580,6 +590,28 @@ async function handleActivityImageUpload(event, index) {
   } catch (error) {
     alert(`อัปโหลดรูปกิจกรรมล้มเหลว: ${error.message}`)
   }
+}
+
+async function handleActivityAlbumUpload(event, actIdx) {
+  const files = event.target.files
+  if (!files || files.length === 0) return
+  
+  if (!pageData.value.activities.items[actIdx].images) {
+    pageData.value.activities.items[actIdx].images = []
+  }
+
+  for (const file of files) {
+    try {
+      const publicUrl = await uploadToSupabase(file, 'activities/album')
+      pageData.value.activities.items[actIdx].images.push(publicUrl)
+    } catch (error) {
+      alert(`อัปโหลดบางรูปล้มเหลว: ${error.message}`)
+    }
+  }
+}
+
+function removeActivityImage(actIdx, imgIdx) {
+  pageData.value.activities.items[actIdx].images.splice(imgIdx, 1)
 }
 
 // --- Image Upload Logic (General) ---
