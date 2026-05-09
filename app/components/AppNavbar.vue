@@ -4,7 +4,7 @@ import { ref, computed } from 'vue'
 const isMenuOpen = ref(false)
 
 // ดึงข้อมูลการตั้งค่าจาก API
-const { data: settings } = await useFetch('/api/admin/settings')
+const { data: settings } = useLazyFetch('/api/settings')
 
 // แยกส่วนชื่อและโลโก้สำหรับ Navbar โดยเฉพาะ
 const navbarTitle = computed(() => settings.value?.page_navbar?.title || settings.value?.mosque_name || 'มัสยิดบ้านสมเด็จ')

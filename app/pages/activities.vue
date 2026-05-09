@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const { data: settings } = await useFetch('/api/admin/settings')
+const { data: settings } = await useFetch('/api/settings')
 
 const pageData = computed(() => settings.value?.page_activities || {
     title: 'กิจกรรมของมัสยิด',
@@ -47,15 +47,26 @@ const prevImage = (e?: Event) => {
 }
 
 // Keyboard navigation for lightbox
-if (import.meta.client) {
-    window.addEventListener('keydown', (e) => {
-        if (expandedImageIndex.value !== null) {
-            if (e.key === 'ArrowRight') nextImage()
-            if (e.key === 'ArrowLeft') prevImage()
-            if (e.key === 'Escape') closeLightbox()
-        }
-    })
+const handleKeyDown = (e: KeyboardEvent) => {
+    if (expandedImageIndex.value !== null) {
+        if (e.key === 'ArrowRight') nextImage()
+        if (e.key === 'ArrowLeft') prevImage()
+        if (e.key === 'Escape') closeLightbox()
+    } else if (isModalOpen.value) {
+        if (e.key === 'Escape') closeModal()
+    }
 }
+
+if (import.meta.client) {
+    window.addEventListener('keydown', handleKeyDown)
+}
+
+onUnmounted(() => {
+    if (import.meta.client) {
+        window.removeEventListener('keydown', handleKeyDown)
+        document.body.style.overflow = 'auto'
+    }
+})
 
 // ฟังก์ชันสำหรับจัดรูปแบบวันที่และเวลาแบบไทย (พ.ศ.)
 const formatDateBE = (dateStr: string) => {

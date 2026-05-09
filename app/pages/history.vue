@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const { data: settings } = await useFetch('/api/admin/settings')
+const { data: settings } = await useFetch('/api/settings')
 
 const pageData = computed(() => settings.value?.page_history || {
     title: 'ประวัติความเป็นมา',

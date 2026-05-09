@@ -148,6 +148,15 @@
                   </div>
                 </div>
               </div>
+
+              <!-- Brief History Section -->
+              <div class="space-y-2 pt-4 border-t border-slate-100">
+                <label class="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                  <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span>
+                  ประวัติย่อ (หน้าแรก)
+                </label>
+                <textarea v-model="pageData.index.history_brief" rows="4" placeholder="ระบุประวัติความเป็นมาอย่างย่อเพื่อแสดงในหน้าแรก..." class="w-full px-5 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-emerald-500/20 focus:bg-white transition-all outline-none font-medium shadow-inner"></textarea>
+              </div>
             </div>
 
             <!-- Dynamic About Section -->
@@ -382,7 +391,7 @@
                       <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-4">
                         <div v-for="(img, imgIdx) in act.images || []" :key="imgIdx" class="aspect-square bg-slate-200 rounded-2xl overflow-hidden relative group/img border-2 border-white shadow-sm">
                           <img :src="img" class="w-full h-full object-cover" />
-                          <button @click="removeActivityImage(idx, imgIdx)" class="absolute top-1 right-1 w-6 h-6 bg-rose-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover/img:opacity-100 transition-opacity">✕</button>
+                          <button @click="removeActivityImage(idx, imgIdx)" class="absolute top-1 right-1 w-6 h-6 bg-rose-500 text-white rounded-full flex items-center justify-center lg:opacity-0 lg:group-hover/img:opacity-100 transition-opacity shadow-sm z-10">✕</button>
                         </div>
                         <label class="aspect-square bg-white border-2 border-dashed border-slate-200 rounded-2xl flex flex-col items-center justify-center cursor-pointer hover:bg-slate-50 transition-all hover:border-emerald-300 group/add">
                           <span class="text-2xl group-hover/add:scale-110 transition-transform">➕</span>

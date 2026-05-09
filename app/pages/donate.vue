@@ -1,6 +1,6 @@
 <script setup lang="ts">
 const supabase = useSupabaseClient()
-const { data: settings } = await useFetch('/api/admin/settings')
+const { data: settings } = await useFetch('/api/settings')
 
 const pageData = computed(() => settings.value?.page_donate || {
     title: 'ร่วมบริจาคสมทบทุน',

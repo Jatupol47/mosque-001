@@ -1,16 +1,24 @@
 <script setup lang="ts">
-const { data: settings } = await useFetch('/api/admin/settings')
+const { data: pageDataResponse } = await useAsyncData('home-data', async () => {
+    const [settings, donations] = await Promise.all([
+        $fetch('/api/settings'),
+        $fetch('/api/donation-summary')
+    ])
+    
+    return {
+        settings,
+        donationAmount: donations.totalAmount
+    }
+})
 
-const pageData = computed(() => settings.value?.page_index || {
+const pageData = computed(() => pageDataResponse.value?.settings?.page_index || {
     hero_title: 'ยินดีต้อนรับสู่ มัสยิดบ้านสมเด็จ',
     hero_subtitle: 'ศูนย์รวมจิตใจ สันติสุข และความร่มเย็นของชุมชน',
     hero_image: '/images/background.jpg',
-    about_items: [] // ข้อมูลเริ่มต้นหากไม่มีใน DB
+    about_items: []
 })
 
-// ดึงข้อมูลยอดบริจาครวม
-const { data: donations } = await useFetch('/api/admin/donations')
-const donationAmount = computed(() => donations.value?.totalAmount || 0)
+const donationAmount = computed(() => pageDataResponse.value?.donationAmount || 0)
 
 const formattedAmount = computed(() => {
     return new Intl.NumberFormat('th-TH').format(donationAmount.value)
@@ -47,6 +55,23 @@ const formattedAmount = computed(() => {
                 </a> -->
             </div>
         </header>
+
+        <!-- Brief History Section -->
+        <section v-if="pageData.history_brief" class="py-20 bg-white border-b border-slate-100">
+            <div class="max-w-4xl mx-auto px-6 text-center">
+                <div class="mb-10">
+                    <h2 class="text-3xl font-bold text-gray-800 mb-4">ประวัติความเป็นมาโดยย่อ</h2>
+                    <div class="w-16 h-1 bg-[#facc15] mx-auto rounded-full"></div>
+                </div>
+                <p class="text-lg text-slate-600 leading-relaxed whitespace-pre-line mb-10">
+                    {{ pageData.history_brief }}
+                </p>
+                <NuxtLink to="/history" class="inline-flex items-center gap-2 px-8 py-3 bg-emerald-50 text-emerald-700 font-bold rounded-2xl hover:bg-emerald-100 transition-all active:scale-95 group">
+                    อ่านประวัติฉบับเต็ม
+                    <span class="group-hover:translate-x-1 transition-transform">→</span>
+                </NuxtLink>
+            </div>
+        </section>
 
         <!-- Dynamic About Section -->
         <section id="about" class="max-w-7xl mx-auto px-5 py-24 text-center">

@@ -2,13 +2,13 @@
   <div>
     <NuxtLayout name="admin">
       <!-- Filter Section -->
-      <div class="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div class="mb-6 md:mb-8 flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
-          <h3 class="text-3xl font-black text-slate-800 mb-1">ภาพรวมสถิติ</h3>
+          <h3 class="text-2xl md:text-3xl font-black text-slate-800 mb-1">ภาพรวมสถิติ</h3>
           <p class="text-slate-500 text-sm">วิเคราะห์จำนวนผู้เข้าชมเว็บไซต์และเพจยอดนิยม</p>
         </div>
         
-        <div class="flex items-center gap-3 bg-white p-2 rounded-2xl shadow-sm border border-slate-100">
+        <div class="flex flex-wrap items-center gap-3 bg-white p-2 rounded-2xl shadow-sm border border-slate-100 w-fit">
           <div class="flex items-center gap-2 px-3 border-r border-slate-100">
             <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">เดือน</span>
             <select v-model="selectedMonth" class="bg-transparent font-bold text-slate-700 outline-none cursor-pointer text-sm">
@@ -29,78 +29,81 @@
 
       <!-- Stats Overview -->
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mb-8">
-        <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 flex flex-col justify-between">
+        <div class="bg-white p-6 md:p-8 rounded-[2rem] md:rounded-3xl shadow-sm border border-slate-100 flex flex-col justify-between">
           <div>
-            <div class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">ผู้เข้าชมทั้งหมด</div>
-            <div class="text-3xl font-black text-emerald-600 tracking-tight">{{ stats?.totalVisits?.toLocaleString() || 0 }}</div>
+            <div class="text-[10px] md:text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">ผู้เข้าชมทั้งหมด</div>
+            <div class="text-2xl md:text-3xl font-black text-emerald-600 tracking-tight">{{ stats?.totalVisits?.toLocaleString() || 0 }}</div>
           </div>
-          <div class="mt-4 text-[10px] text-slate-400 font-bold uppercase tracking-tighter">ตั้งแต่เริ่มบันทึกข้อมูล</div>
+          <div class="mt-4 text-[9px] md:text-[10px] text-slate-400 font-bold uppercase tracking-tighter">ตั้งแต่เริ่มบันทึกข้อมูล</div>
         </div>
 
-        <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 flex flex-col justify-between">
+        <div class="bg-white p-6 md:p-8 rounded-[2rem] md:rounded-3xl shadow-sm border border-slate-100 flex flex-col justify-between">
           <div>
-            <div class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">ผู้เข้าชมวันนี้</div>
-            <div class="text-3xl font-black text-blue-600 tracking-tight">{{ stats?.todayVisits?.toLocaleString() || 0 }}</div>
+            <div class="text-[10px] md:text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">ผู้เข้าชมวันนี้</div>
+            <div class="text-2xl md:text-3xl font-black text-blue-600 tracking-tight">{{ stats?.todayVisits?.toLocaleString() || 0 }}</div>
           </div>
-          <div class="mt-4 text-[10px] text-blue-500 font-bold uppercase tracking-tighter">รีเฟรชล่าสุด: {{ new Date().toLocaleTimeString('th-TH') }}</div>
+          <div class="mt-4 text-[9px] md:text-[10px] text-blue-500 font-bold uppercase tracking-tighter">รีเฟรชล่าสุด: {{ new Date().toLocaleTimeString('th-TH') }}</div>
         </div>
 
-        <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 hidden lg:flex flex-col justify-between">
+        <div class="bg-white p-6 md:p-8 rounded-[2rem] md:rounded-3xl shadow-sm border border-slate-100 sm:col-span-2 lg:col-span-1 flex flex-col justify-between">
           <div>
-            <div class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">เฉลี่ยต่อวัน (7 วันล่าสุด)</div>
-            <div class="text-3xl font-black text-amber-500 tracking-tight">
+            <div class="text-[10px] md:text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">เฉลี่ยต่อวัน (7 วันล่าสุด)</div>
+            <div class="text-2xl md:text-3xl font-black text-amber-500 tracking-tight">
               {{ Math.round((stats?.recentStats?.reduce((acc, curr) => acc + curr.count, 0) || 0) / 7) }}
             </div>
           </div>
-          <div class="mt-4 text-[10px] text-slate-400 font-bold uppercase tracking-tighter">คำนวณจากข้อมูลย้อนหลัง</div>
+          <div class="mt-4 text-[9px] md:text-[10px] text-slate-400 font-bold uppercase tracking-tighter">คำนวณจากข้อมูลย้อนหลัง</div>
         </div>
       </div>
 
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-        <!-- Weekly Chart (Simple CSS implementation) -->
-        <div class="bg-white rounded-[2.5rem] shadow-sm border border-slate-100 p-8">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8 mb-8">
+        <!-- Weekly Chart -->
+        <div class="bg-white rounded-[2rem] md:rounded-[2.5rem] shadow-sm border border-slate-100 p-6 md:p-8">
           <div class="flex items-center justify-between mb-6">
-            <h2 class="font-bold text-slate-800 tracking-tight">สถิติย้อนหลัง 7 วัน</h2>
-            <button @click="refresh()" class="p-2 hover:bg-slate-50 rounded-xl transition-colors text-slate-400">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" :class="{ 'animate-spin': pending }"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path><path d="M21 3v5h-5"></path><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path><path d="M8 16H3v5"></path></svg>
-            </button>
+            <h2 class="font-bold text-slate-800 tracking-tight text-base md:text-lg">สถิติการเข้าชม</h2>
+            <div class="text-[10px] font-black text-slate-400 uppercase tracking-widest">ย้อนหลังล่าสุด</div>
           </div>
-          <div class="flex items-end justify-between h-48 gap-2">
-            <div v-for="day in last7Days" :key="day.date" class="flex-1 flex flex-col items-center gap-2 group">
-              <div 
-                class="w-full bg-emerald-100 group-hover:bg-emerald-500 transition-all duration-300 rounded-t-lg relative"
-                :style="{ height: `${(day.count / maxVisits) * 100}%` }"
-              >
-                <div class="absolute -top-6 left-1/2 -translate-x-1/2 text-[10px] font-bold text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity">
-                  {{ day.count }}
+          
+          <div class="overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-slate-200 scrollbar-track-transparent">
+            <div class="relative pt-6 min-w-[300px]" :style="{ width: last7Days.length > 7 ? `${last7Days.length * 40}px` : '100%' }">
+              <div class="flex items-end justify-between h-48 gap-1 md:gap-2">
+                <div v-for="day in last7Days" :key="day.date" class="flex-1 flex flex-col items-center gap-2 group">
+                  <div 
+                    class="w-full max-w-[30px] bg-emerald-100 group-hover:bg-emerald-500 transition-all duration-300 rounded-t-lg relative mx-auto"
+                    :style="{ height: `${(day.count / maxVisits) * 100}%` }"
+                  >
+                    <div class="absolute -top-6 left-1/2 -translate-x-1/2 text-[9px] font-bold text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                      {{ day.count }}
+                    </div>
+                  </div>
+                  <div class="text-[8px] md:text-[9px] font-bold text-slate-400 uppercase tracking-tighter text-center h-4 flex items-center whitespace-nowrap">
+                    {{ day.label }}
+                  </div>
                 </div>
-              </div>
-              <div class="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">
-                {{ day.label }}
               </div>
             </div>
           </div>
         </div>
 
         <!-- Top Pages -->
-        <div class="bg-white rounded-[2.5rem] shadow-sm border border-slate-100 overflow-hidden">
-          <div class="px-8 py-6 border-b border-slate-50">
-            <h2 class="font-bold text-slate-800 tracking-tight">หน้าเพจที่มีผู้เข้าชมสูงสุด</h2>
+        <div class="bg-white rounded-[2rem] md:rounded-[2.5rem] shadow-sm border border-slate-100 overflow-hidden">
+          <div class="px-6 md:px-8 py-5 md:py-6 border-b border-slate-50">
+            <h2 class="font-bold text-slate-800 tracking-tight text-base md:text-lg">เพจยอดนิยม</h2>
           </div>
-          <div class="p-4">
-            <div v-if="stats?.topPages?.length > 0">
-              <div v-for="(page, index) in stats?.topPages" :key="page.path" class="flex items-center gap-4 p-4 hover:bg-slate-50 rounded-2xl transition-all">
-                <div class="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-xs font-black text-slate-400">
+          <div class="p-4 md:p-6">
+            <div v-if="stats?.topPages?.length > 0" class="space-y-1">
+              <div v-for="(page, index) in stats?.topPages" :key="page.path" class="flex items-center gap-4 p-3 md:p-4 hover:bg-slate-50 rounded-2xl transition-all group">
+                <div class="w-7 h-7 md:w-8 md:h-8 rounded-lg bg-slate-100 group-hover:bg-emerald-50 flex items-center justify-center text-[10px] font-black text-slate-400 group-hover:text-emerald-500 shrink-0">
                   {{ index + 1 }}
                 </div>
-                <div class="flex-1">
-                  <div class="text-sm font-bold text-slate-700">{{ page.path }}</div>
+                <div class="flex-1 min-w-0">
+                  <div class="text-xs md:text-sm font-bold text-slate-700 truncate">{{ page.path }}</div>
                   <div class="w-full bg-slate-100 h-1 mt-2 rounded-full overflow-hidden">
-                    <div class="bg-emerald-500 h-full" :style="{ width: `${(page._count.path / (stats.topPages[0]?._count?.path || 1)) * 100}%` }"></div>
+                    <div class="bg-emerald-500 h-full transition-all duration-1000" :style="{ width: `${(page._count.path / (stats.topPages[0]?._count?.path || 1)) * 100}%` }"></div>
                   </div>
                 </div>
-                <div class="text-xs font-black text-slate-400">
-                  {{ page._count.path }} ครั้ง
+                <div class="text-[10px] md:text-xs font-black text-slate-400 bg-slate-50 px-2 py-1 rounded-md shrink-0">
+                  {{ page._count.path }} <span class="hidden md:inline">ครั้ง</span>
                 </div>
               </div>
             </div>
@@ -112,37 +115,40 @@
       </div>
 
       <!-- Recent Activity -->
-      <div class="bg-white rounded-[2.5rem] shadow-sm border border-slate-100 overflow-hidden">
-        <div class="px-8 py-6 border-b border-slate-50">
-          <h2 class="font-bold text-slate-800 tracking-tight">กิจกรรมล่าสุด</h2>
+      <div class="bg-white rounded-[2rem] md:rounded-[2.5rem] shadow-sm border border-slate-100 overflow-hidden">
+        <div class="px-6 md:px-8 py-5 md:py-6 border-b border-slate-50 flex items-center justify-between">
+          <h2 class="font-bold text-slate-800 tracking-tight text-base md:text-lg">กิจกรรมล่าสุด</h2>
+          <span class="text-[10px] font-bold text-emerald-500 bg-emerald-50 px-3 py-1 rounded-full uppercase tracking-widest">Real-time</span>
         </div>
-        <div class="overflow-x-auto">
-          <table class="w-full text-left">
+        <div class="overflow-x-auto scrollbar-thin scrollbar-thumb-slate-200">
+          <table class="w-full text-left min-w-[600px] md:min-w-full">
             <thead>
               <tr class="text-[10px] font-bold text-slate-400 uppercase tracking-widest border-b border-slate-50">
-                <th class="px-8 py-4">เวลา</th>
-                <th class="px-8 py-4">หน้าเพจ</th>
-                <th class="px-8 py-4">IP Address</th>
-                <th class="px-8 py-4">User Agent</th>
+                <th class="px-6 md:px-8 py-4">เวลา</th>
+                <th class="px-6 md:px-8 py-4">หน้าเพจ</th>
+                <th class="px-6 md:px-8 py-4">IP Address</th>
+                <th class="px-6 md:px-8 py-4 hidden sm:table-cell">Device Info</th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-slate-50">
-              <tr v-for="visitor in stats?.recentVisitors" :key="visitor.id" class="hover:bg-slate-50 transition-colors">
-                <td class="px-8 py-4 text-xs font-medium text-slate-600">
-                  {{ new Date(visitor.createdAt).toLocaleString('th-TH') }}
+            <tbody class="divide-y divide-slate-50 text-xs">
+              <tr v-for="visitor in stats?.recentVisitors" :key="visitor.id" class="hover:bg-slate-50/50 transition-colors">
+                <td class="px-6 md:px-8 py-4 font-medium text-slate-600 whitespace-nowrap">
+                  {{ new Date(visitor.createdAt).toLocaleString('th-TH', { 
+                    day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' 
+                  }) }}
                 </td>
-                <td class="px-8 py-4">
-                  <span class="px-2 py-1 bg-slate-100 text-slate-600 rounded text-[10px] font-bold">{{ visitor.path }}</span>
+                <td class="px-6 md:px-8 py-4">
+                  <span class="px-2 py-1 bg-slate-100 text-slate-600 rounded text-[9px] font-bold tracking-wide">{{ visitor.path }}</span>
                 </td>
-                <td class="px-8 py-4 text-xs text-slate-500 font-mono">
+                <td class="px-6 md:px-8 py-4 text-slate-500 font-mono text-[10px]">
                   {{ visitor.ip || 'Unknown' }}
                 </td>
-                <td class="px-8 py-4 text-[10px] text-slate-400 truncate max-w-[200px]">
+                <td class="px-6 md:px-8 py-4 text-[10px] text-slate-400 truncate max-w-[150px] lg:max-w-[300px] hidden sm:table-cell">
                   {{ visitor.userAgent }}
                 </td>
               </tr>
               <tr v-if="!stats?.recentVisitors?.length">
-                <td colspan="4" class="px-8 py-12 text-center text-slate-400 text-sm italic">
+                <td colspan="4" class="px-6 md:px-8 py-12 text-center text-slate-400 text-sm italic">
                   ไม่มีกิจกรรมล่าสุด
                 </td>
               </tr>

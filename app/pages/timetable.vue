@@ -3,17 +3,40 @@ import { computed } from 'vue'
 
 const selectedDate = ref(new Date().toISOString().split('T')[0])
 
-const { data: settings } = await useFetch('/api/admin/settings')
-const { data: prayerData, pending } = await useFetch('/api/prayer-times', {
-    query: computed(() => {
-        const d = new Date(selectedDate.value)
-        return {
+// Initial fetch for settings and prayer times
+const { data: pageDataResponse } = await useAsyncData('timetable-init', async () => {
+    const [settings, prayerData] = await Promise.all([
+        $fetch('/api/settings'),
+        $fetch('/api/prayer-times', {
+            query: {
+                dd: new Date(selectedDate.value).getDate(),
+                mm: new Date(selectedDate.value).getMonth() + 1,
+                yyyy: new Date(selectedDate.value).getFullYear()
+            }
+        })
+    ])
+    return { settings, prayerData }
+})
+
+const settings = computed(() => pageDataResponse.value?.settings)
+const initialPrayerData = ref(pageDataResponse.value?.prayerData)
+
+// Subsequent fetches for prayer times when date changes
+const { data: refreshedPrayerData, pending } = await useAsyncData('prayer-times-refresh', async () => {
+    const d = new Date(selectedDate.value)
+    return await $fetch('/api/prayer-times', {
+        query: {
             dd: d.getDate(),
             mm: d.getMonth() + 1,
             yyyy: d.getFullYear()
         }
     })
+}, {
+    watch: [selectedDate],
+    immediate: false
 })
+
+const prayerData = computed(() => refreshedPrayerData.value || initialPrayerData.value)
 
 // 1. เพิ่มตัวแปรสำหรับดึงวันที่และจัดรูปแบบเป็นภาษาไทย
 const displayDateThai = computed(() => {

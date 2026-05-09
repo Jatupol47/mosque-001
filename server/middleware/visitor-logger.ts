@@ -36,15 +36,18 @@ export default defineEventHandler(async (event) => {
   const ip = getHeader(event, 'x-forwarded-for') || event.node.req.socket.remoteAddress
   
   try {
-    await prisma.visitorLog.create({
+    // Non-blocking write to database
+    prisma.visitorLog.create({
       data: {
         path,
         userAgent,
         ip: typeof ip === 'string' ? ip : undefined
       }
+    }).catch(error => {
+      console.error('[Visitor Logger] Failed:', error)
     })
   } catch (error) {
     // Silently fail for logger to not interrupt the request
-    console.error('[Visitor Logger] Failed:', error)
+    console.error('[Visitor Logger] Unexpected error:', error)
   }
 })

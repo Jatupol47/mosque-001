@@ -140,5 +140,5 @@ async function handleLogout() {
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 20px; }
-body { font-family: 'Prompt', sans-serif; overflow: hidden; }
+body { font-family: 'Prompt', sans-serif; }
 </style>

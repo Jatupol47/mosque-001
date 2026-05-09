@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const { data: settings } = await useFetch('/api/admin/settings')
+const { data: settings } = useLazyFetch('/api/settings')
 
 // Footer จะใช้ข้อมูลจาก "ข้อมูลทั่วไป" เป็นหลัก
 const footerMosqueName = computed(() => settings.value?.mosque_name || 'มัสยิดบ้านสมเด็จ')
