@@ -93,7 +93,7 @@ const getPrayers = (table: any) => [
                 <div class="w-24 h-1.5 bg-[#facc15] mx-auto rounded-full mb-6"></div>
                 <p class="text-slate-500 font-medium mb-10">{{ settings?.mosque_name || 'มัสยิดบ้านสมเด็จ' }}</p>
 
-                <!-- Date Picker -->
+                <!-- Date Picker
                 <div class="inline-flex items-center gap-4 bg-white px-6 py-4 rounded-[2rem] shadow-sm border border-slate-100 mb-8 hover:shadow-md transition-all">
                     <span class="text-sm font-bold text-slate-400 uppercase tracking-widest">เลือกวันที่:</span>
                     <input 
@@ -102,7 +102,7 @@ const getPrayers = (table: any) => [
                         class="bg-transparent font-black text-[#155d3a] outline-none cursor-pointer text-lg"
                     />
                     <div v-if="pending" class="w-5 h-5 border-2 border-emerald-500/30 border-t-emerald-500 rounded-full animate-spin"></div>
-                </div>
+                </div> -->
             </div>
 
             <!-- 3. ส่วนของตารางแสดงผล -->
