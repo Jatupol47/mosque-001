@@ -74,11 +74,11 @@ const footerLogo = computed(() => settings.value?.logo_url || '')
             <!-- ส่วนลิขสิทธิ์ล่างสุด -->
             <div class="pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center text-gray-400 text-xs space-y-4 md:space-y-0">
                 <p>&copy; 2026 {{ footerMosqueName }}. สงวนลิขสิทธิ์.</p>
-                <!-- <div class="flex gap-6">
+                <div class="flex gap-6">
                     <NuxtLink to="/admin" class="hover:text-[#facc15] opacity-50 hover:opacity-100 transition-all font-bold">
                         🔐 ระบบหลังบ้าน
                     </NuxtLink>
-                </div> -->
+                </div>
             </div>
 
         </div>
