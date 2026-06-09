@@ -53,14 +53,11 @@
           <div class="mt-4 text-[10px] text-blue-500 font-bold uppercase tracking-tighter">รวมรายการรอยืนยัน</div>
         </div>
 
-        <!-- การ์ดสถานะการเชื่อมโยงฐานข้อมูล (ซ่อนบนมือถือแสดงบนเดสก์ท็อป) -->
-        <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 hidden lg:flex flex-col justify-between">
-          <div>
-            <div class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">สถานะฐานข้อมูล</div>
-            <div class="text-3xl font-black text-emerald-500 tracking-tight">Connected</div>
-          </div>
-          <div class="mt-4 text-[10px] text-slate-400 font-bold uppercase tracking-tighter">Supabase AWS Singapore</div>
-        </div>
+      <!-- Floating Database Status -->
+      <div class="fixed bottom-4 right-4 bg-white px-4 py-2 rounded-full shadow-lg border border-slate-100 flex items-center gap-2 z-50">
+        <div class="w-2.5 h-2.5 bg-emerald-500 rounded-full animate-pulse"></div>
+        <div class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">DB: Connected</div>
+      </div>
       </div>
 
       <!-- ==================== 3. Recent Donations Table (ตารางแสดงรายการบริจาคล่าสุดประจำเดือน) ==================== -->

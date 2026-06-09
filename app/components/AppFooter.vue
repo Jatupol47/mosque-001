@@ -93,5 +93,5 @@ const footerLogo = computed(() => settings.value?.logo_url || '')
             </div>
 
         </div>
-    </div>
+    </footer>
 </template>
