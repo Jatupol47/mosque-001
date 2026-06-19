@@ -1,13 +1,17 @@
 <template>
   <div>
+    <!-- ใช้ Layout ของฝั่งแอดมิน (มีแถบเมนูด้านข้าง) -->
     <NuxtLayout name="admin">
       <div class="max-w-6xl">
+        
+        <!-- ==================== 1. Header (ชื่อหัวเรื่องหน้าและการจัดการเซฟ) ==================== -->
         <div class="mb-8 flex justify-between items-end">
           <div>
             <h3 class="text-3xl font-black text-slate-800 mb-2">ตั้งค่าเว็บไซต์</h3>
             <p class="text-slate-500">จัดการเนื้อหาและรูปภาพในทุกหน้าของเว็บไซต์ผ่าน Supabase Storage</p>
           </div>
           <div class="flex gap-2">
+            <!-- ปุ่มกดบันทึกการตั้งค่าทั้งหมด (จะปิดไม่ให้กดซ้ำระหว่างเซฟ และแสดง Spinner โหลด) -->
             <button 
               @click="saveAllSettings" 
               :disabled="saving"
@@ -19,7 +23,7 @@
           </div>
         </div>
 
-        <!-- Tab Navigation -->
+        <!-- ==================== 2. Tab Navigation (แถบสลับกลุ่มเมนูการตั้งค่า) ==================== -->
         <div class="flex gap-2 mb-8 bg-slate-100 p-1.5 rounded-[1.5rem] w-full overflow-x-auto no-scrollbar border border-slate-200/50 shadow-inner">
           <button 
             v-for="tab in tabs" 
@@ -32,12 +36,12 @@
           </button>
         </div>
 
-        <!-- Tab Content -->
+        <!-- ==================== 3. Tab Content (เนื้อหาการตั้งค่าในแต่ละกลุ่มย่อย) ==================== -->
         <div class="bg-white rounded-[1.5rem] md:rounded-[2.5rem] shadow-sm border border-slate-100 p-6 md:p-10">
           
-          <!-- General Settings -->
+          <!-- [3.1] กลุ่มข้อมูลทั่วไป (ข้อมูลติดต่อหลักของมัสยิด โลโก้ และไอคอนเว็บ) -->
           <div v-if="activeTab === 'general'" class="space-y-12">
-            <!-- Branding Section -->
+            <!-- ส่วนแบรนดิ้ง โลโก้และ favicon -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10 border-b pb-12">
               <div class="space-y-4">
                 <label class="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
@@ -68,21 +72,20 @@
               </div>
             </div>
 
-            <!-- Basic Info Section -->
+            <!-- ส่วนฟอร์มรับข้อมูล เช่น ชื่อมัสยิด ที่อยู่ เบอร์โทร เมล และประโยคท้ายเว็บ -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div v-for="(label, key) in generalLabels" :key="key" class="space-y-2" :class="key === 'footer_desc' ? 'md:col-span-2' : ''">
                 <label class="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
                   <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span>
                   {{ label }}
                 </label>
-                
                 <textarea v-if="key === 'footer_desc'" v-model="generalSettings[key]" rows="3" class="w-full px-5 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-emerald-500/20 focus:bg-white transition-all outline-none font-medium shadow-inner"></textarea>
                 <input v-else v-model="generalSettings[key]" type="text" class="w-full px-5 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-emerald-500/20 focus:bg-white transition-all outline-none font-medium shadow-inner" />
               </div>
             </div>
           </div>
 
-          <!-- Page: Navbar -->
+          <!-- [3.2] กลุ่มแถบเมนูนำทาง (Navbar Settings) -->
           <div v-if="activeTab === 'navbar'" class="space-y-12">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
               <div class="space-y-4">
@@ -125,10 +128,11 @@
               </div>
             </div>
           </div>
+
+          <!-- [3.3] กลุ่มแก้ไขการตั้งค่า หน้าแรก (Home Page - Hero Section & About Cards) -->
           <div v-if="activeTab === 'index'" class="space-y-12">
             <h4 class="font-bold text-slate-800 text-lg border-b pb-4">หน้าแรก (Home Page)</h4>
             
-            <!-- Hero Section -->
             <div class="grid grid-cols-1 gap-6">
               <h5 class="text-sm font-bold text-slate-700">ส่วนหัวข้อ (Hero Section)</h5>
               <div class="space-y-2">
@@ -149,7 +153,7 @@
                 </div>
               </div>
 
-              <!-- Brief History Section -->
+              <!-- ข้อความแสดงประวัติแบบย่อ -->
               <div class="space-y-2 pt-4 border-t border-slate-100">
                 <label class="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
                   <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span>
@@ -159,13 +163,14 @@
               </div>
             </div>
 
-            <!-- Dynamic About Section -->
+            <!-- ส่วนของเกี่ยวกับมัสยิดที่ปรับแต่งไอเทมแบบ Dynamic ได้ -->
             <div class="space-y-6 pt-8 border-t border-slate-100">
               <div class="flex justify-between items-center">
                 <div>
                   <h5 class="text-sm font-bold text-slate-700">ส่วนเกี่ยวกับมัสยิด (About Items)</h5>
                   <p class="text-xs text-slate-400">คุณสามารถเพิ่มรูปภาพและเนื้อหาได้ไม่จำกัด</p>
                 </div>
+                <!-- ปุ่มเพิ่มการ์ดข้อมูลใหม่ -->
                 <button 
                   @click="addAboutItem"
                   class="w-10 h-10 bg-emerald-500 text-white rounded-full flex items-center justify-center shadow-lg shadow-emerald-500/20 hover:bg-emerald-600 transition-all hover:scale-110 active:scale-95"
@@ -174,12 +179,14 @@
                 </button>
               </div>
 
+              <!-- วนลูปการ์ดรายการที่มีอยู่จริง -->
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div 
                   v-for="(item, index) in pageData.index.about_items" 
                   :key="index"
                   class="p-6 bg-slate-50 rounded-[2rem] border border-slate-100 space-y-4 relative group"
                 >
+                  <!-- ปุ่มกากบาทลบรายการ -->
                   <button 
                     @click="removeAboutItem(index)"
                     class="absolute -top-2 -right-2 w-8 h-8 bg-white text-rose-500 rounded-full shadow-md flex items-center justify-center md:opacity-0 group-hover:opacity-100 transition-opacity hover:bg-rose-50 border border-rose-100 z-10"
@@ -188,6 +195,7 @@
                   </button>
 
                   <div class="space-y-4">
+                    <!-- รูปประกอบของการ์ดข้อมูล -->
                     <div class="relative w-full h-32 rounded-2xl overflow-hidden bg-slate-200 border border-slate-100 shadow-inner">
                       <img v-if="item.image" :src="item.image" class="w-full h-full object-cover" />
                       <div v-else class="w-full h-full flex items-center justify-center text-slate-400 text-2xl">🖼️</div>
@@ -210,13 +218,14 @@
                 </div>
               </div>
 
+              <!-- แสดงในกรณีที่ไม่มีข้อมูลสักรายการ -->
               <div v-if="!pageData.index.about_items?.length" class="py-12 text-center border-2 border-dashed border-slate-200 rounded-[2rem]">
                 <p class="text-slate-400 font-medium italic">ยังไม่มีรายการข้อมูล กดปุ่ม + เพื่อเพิ่ม</p>
               </div>
             </div>
           </div>
 
-          <!-- Page: History -->
+          <!-- [3.4] กลุ่มแก้ไขการตั้งค่า หน้าประวัติและบุคลากร (History & Personnel Settings) -->
           <div v-if="activeTab === 'history'" class="space-y-8">
             <h4 class="font-bold text-slate-800 text-lg border-b pb-4">หน้าประวัติ (History)</h4>
             <div class="space-y-6">
@@ -229,14 +238,14 @@
                 <textarea v-model="pageData.history.content_top" rows="4" class="w-full px-5 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-emerald-500/20 focus:bg-white transition-all outline-none font-medium shadow-inner"></textarea>
               </div>
               
-              <!-- Image Upload for History -->
+              <!-- รูปภาพประวัติความเป็นมามัสยิด -->
               <div class="space-y-4">
                 <label class="text-xs font-black text-slate-400 uppercase tracking-widest">รูปภาพประกอบ</label>
                 <div class="flex flex-col sm:flex-row items-center gap-6 p-6 bg-slate-50 rounded-3xl border border-slate-100">
                   <img :src="pageData.history.image" class="w-40 h-24 object-cover rounded-xl shadow-md bg-slate-200 shrink-0" />
                   <div class="flex-1 space-y-3 w-full overflow-hidden">
                     <p class="text-[10px] text-slate-500 font-bold uppercase">รูปภาพสำหรับเล่าเรื่องราวประวัติ</p>
-                    <input type="file" @change="(e) => handleImageUpload(e, 'history', 'image')" class="block w-full text-[10px] text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-[10px] file:font-bold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100 cursor-pointer shadow-sm overflow-hidden" />
+                    <input type="file" @change="(e) => handleImageUpload(e, 'history', 'image')" class="block w-full text-[10px] text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-[10px] file:font-black file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100 cursor-pointer shadow-sm overflow-hidden" />
                   </div>
                 </div>
               </div>
@@ -246,7 +255,7 @@
                 <textarea v-model="pageData.history.content_bottom" rows="4" class="w-full px-5 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-emerald-500/20 focus:bg-white transition-all outline-none font-medium shadow-inner"></textarea>
               </div>
 
-              <!-- Personnel Section -->
+              <!-- ส่วนแก้ไขและจัดการข้อมูลบุคลากรมัสยิดแบบ Dynamic -->
               <div class="space-y-6 pt-8 border-t border-slate-100">
                 <div class="flex justify-between items-center">
                   <div>
@@ -261,12 +270,14 @@
                   </button>
                 </div>
 
+                <!-- แสดงกล่อง Grid การ์ดบุคลากรแต่ละคน -->
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   <div 
                     v-for="(person, index) in pageData.history.personnel" 
                     :key="index"
                     class="p-6 bg-slate-50 rounded-[2rem] border border-slate-100 space-y-4 relative group"
                   >
+                    <!-- ปุ่มลบรายชื่อบุคลากร -->
                     <button 
                       @click="removePersonnel(index)"
                       class="absolute -top-2 -right-2 w-8 h-8 bg-white text-rose-500 rounded-full shadow-md flex items-center justify-center md:opacity-0 group-hover:opacity-100 transition-opacity hover:bg-rose-50 border border-rose-100 z-10"
@@ -275,6 +286,7 @@
                     </button>
 
                     <div class="space-y-4">
+                      <!-- รูปถ่ายบุคลากร -->
                       <div class="relative w-full h-48 rounded-2xl overflow-hidden bg-slate-200 border border-slate-100 shadow-inner">
                         <img v-if="person.image" :src="person.image" class="w-full h-full object-cover" />
                         <div v-else class="w-full h-full flex items-center justify-center text-slate-400 text-3xl">👤</div>
@@ -302,6 +314,7 @@
                   </div>
                 </div>
 
+                <!-- ป้ายเตือนกรณีที่ยังไม่เพิ่มบุคลากรใดๆ -->
                 <div v-if="!pageData.history.personnel?.length" class="py-12 text-center border-2 border-dashed border-slate-200 rounded-[2rem]">
                   <p class="text-slate-400 font-medium italic">ยังไม่มีข้อมูลบุคลากร กดปุ่มด้านบนเพื่อเพิ่ม</p>
                 </div>
@@ -309,7 +322,7 @@
             </div>
           </div>
 
-          <!-- Page: Donate -->
+          <!-- [3.5] กลุ่มแก้ไขการตั้งค่า หน้าบริจาคและบัญชี (Donate Settings) -->
           <div v-if="activeTab === 'donate'" class="space-y-8">
             <h4 class="font-bold text-slate-800 text-lg border-b pb-4">หน้าบริจาค (Donate)</h4>
             <div class="grid grid-cols-1 gap-6">
@@ -322,7 +335,7 @@
                 <textarea v-model="pageData.donate.description" rows="3" class="w-full px-5 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-emerald-500/20 focus:bg-white transition-all outline-none font-medium shadow-inner"></textarea>
               </div>
               
-              <!-- Image Upload for QR -->
+              <!-- กล่องแก้ไขอัปโหลดรูปภาพ QR Code บริจาคหลัก -->
               <div class="space-y-4">
                 <label class="text-xs font-black text-slate-400 uppercase tracking-widest">รูปภาพ QR Code บริจาค</label>
                 <div class="flex flex-col sm:flex-row items-center gap-6 p-6 bg-slate-50 rounded-3xl border border-slate-100">
@@ -336,7 +349,7 @@
             </div>
           </div>
 
-          <!-- Page: Activities -->
+          <!-- [3.6] กลุ่มจัดการหน้าข่าวสาร/กิจกรรม (Activities Settings) -->
           <div v-if="activeTab === 'activities'" class="space-y-8">
             <div class="flex justify-between items-center border-b pb-4">
               <h4 class="font-bold text-slate-800 text-lg">รายการกิจกรรม (Activities)</h4>
@@ -345,7 +358,7 @@
               </button>
             </div>
 
-            <!-- ส่วนแก้ไขหัวข้อใหญ่ของหน้ากิจกรรม -->
+            <!-- แก้ไขหัวข้อชื่อของหน้ารวมกิจกรรม -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 p-8 bg-slate-50 rounded-[2.5rem] border border-slate-100">
               <div class="space-y-2">
                 <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest">หัวข้อใหญ่ของหน้า</label>
@@ -357,6 +370,7 @@
               </div>
             </div>
 
+            <!-- วนลูปกล่องบันทึกข้อมูลและสลิปภาพแกลเลอรีประจำแต่ละข่าวสาร/กิจกรรม -->
             <div class="grid grid-cols-1 gap-6">
               <div v-for="(act, idx) in pageData.activities.items" :key="idx" class="p-6 md:p-8 bg-slate-50 rounded-[2rem] md:rounded-[2.5rem] border border-slate-100 relative group">
                 <button @click="removeActivity(idx)" class="absolute -top-2 -right-2 w-10 h-10 bg-white text-rose-500 rounded-full shadow-md flex items-center justify-center md:opacity-0 group-hover:opacity-100 transition-all hover:bg-rose-50 border border-rose-100 z-10">
@@ -364,6 +378,7 @@
                 </button>
                 
                 <div class="flex flex-col lg:flex-row gap-6 md:gap-8">
+                  <!-- รูปปกประจำกิจกรรมหลัก -->
                   <div class="w-full lg:w-64 h-48 bg-slate-200 rounded-3xl overflow-hidden relative border-4 border-white shadow-sm shrink-0">
                     <img v-if="act.image" :src="act.image" class="w-full h-full object-cover" />
                     <div v-else class="w-full h-full flex items-center justify-center text-3xl">📸</div>
@@ -373,6 +388,7 @@
                     </label>
                   </div>
                   
+                  <!-- รายละเอียดเนื้อหากิจกรรมย่อย (ชื่อ วันที่พิกัด และสไลด์แกลเลอรีรูปภาพเพิ่มเติม) -->
                   <div class="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                     <div class="md:col-span-2 space-y-2">
                       <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest">ชื่อกิจกรรม</label>
@@ -386,6 +402,8 @@
                       <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest">สถานที่</label>
                       <input v-model="act.location" type="text" placeholder="ระบุสถานที่..." class="w-full px-5 py-3.5 bg-white border border-slate-100 rounded-2xl focus:ring-2 focus:ring-emerald-500/10 outline-none" />
                     </div>
+                    
+                    <!-- ส่วนอัลบั้มสไลด์แกลเลอรีภาพกิจกรรมย่อย (สามารถแนบรูปภาพได้มากกว่า 1 รูป) -->
                     <div class="md:col-span-2 space-y-4">
                       <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest block">อัลบั้มรูปภาพกิจกรรม (เพิ่มได้หลายรูป)</label>
                       <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-4">
@@ -393,6 +411,7 @@
                           <img :src="img" class="w-full h-full object-cover" />
                           <button @click="removeActivityImage(idx, imgIdx)" class="absolute top-1 right-1 w-6 h-6 bg-rose-500 text-white rounded-full flex items-center justify-center lg:opacity-0 lg:group-hover/img:opacity-100 transition-opacity shadow-sm z-10">✕</button>
                         </div>
+                        <!-- ปุ่มแอดรูปภาพเพิ่มในอัลบั้มสไลด์ -->
                         <label class="aspect-square bg-white border-2 border-dashed border-slate-200 rounded-2xl flex flex-col items-center justify-center cursor-pointer hover:bg-slate-50 transition-all hover:border-emerald-300 group/add">
                           <span class="text-2xl group-hover/add:scale-110 transition-transform">➕</span>
                           <span class="text-[8px] font-black text-slate-400 uppercase mt-1">เพิ่มรูป</span>
@@ -405,6 +424,7 @@
               </div>
             </div>
 
+            <!-- แสดงเตือนเมื่อยังไม่เพิ่มรายการกิจกรรมใดๆ -->
             <div v-if="!pageData.activities.items?.length" class="py-20 text-center border-2 border-dashed border-slate-200 rounded-[3rem]">
               <div class="text-5xl mb-4">📅</div>
               <p class="text-slate-400 font-bold">ยังไม่มีข้อมูลกิจกรรม</p>
@@ -419,15 +439,27 @@
 </template>
 
 <script setup>
+/**
+ * หน้าจอการจัดการและตั้งค่าเนื้อหาเว็บไซต์ (Admin Website Settings Configuration)
+ * ทำหน้าที่:
+ * 1. ดึงการตั้งค่าดิบทั้งหมดจาก API '/api/admin/settings' มารวมจัดกลุ่มแยกประเภท
+ * 2. จัดการข้อมูลโครงสร้างแบรนดิ้ง (โลโก้มัสยิด, ไอคอนเว็บ Favicon, แถบนำทางด้านบน Navbar)
+ * 3. บริหารจัดการเนื้อหาแบบ Dynamic Items: ลบ/เพิ่ม หัวข้อกล่องข้อมูลหน้าแรก, ข้อมูลบุคลากรมัสยิด (Personnel), ข้อมูลกิจกรรม (Activities)
+ * 4. จัดการอัปโหลดไฟล์ภาพหลากหลายประเภทตรงไปยัง Supabase Storage images Bucket
+ * 5. สั่งบันทึกการตั้งค่าโครงสร้างทั้งหมดลงฐานข้อมูล (Prisma PostgreSQL) พร้อมกันผ่านปุ่ม "บันทึกทั้งหมด"
+ */
+
+// ตรวจสอบสิทธิ์การเข้าถึงผ่านระบบ 'auth' Middleware
 definePageMeta({ 
   layout: false,
   middleware: 'auth'
 })
 
 const supabase = useSupabaseClient()
-const activeTab = ref('general')
-const saving = ref(false)
+const activeTab = ref('general') // แท็บเริ่มต้นที่ให้เปิดแสดง (ข้อมูลทั่วไป)
+const saving = ref(false)         // สถานะประมวลผลระหว่างส่งเซฟไปที่หลังบ้าน
 
+// รายชื่อโครงสร้างเมนูหลักที่แสดงในหน้าเว็บ
 const tabs = [
   { id: 'general', name: 'ข้อมูลทั่วไป' },
   { id: 'navbar', name: 'แถบเมนู (Navbar)' },
@@ -437,6 +469,7 @@ const tabs = [
   { id: 'donate', name: 'บริจาค' }
 ]
 
+// ป้ายอธิบายฟิลด์ข้อมูลติดต่อทั่วไป
 const generalLabels = {
   mosque_name: 'ชื่อมัสยิดหลัก',
   address: 'ที่อยู่สถานที่',
@@ -445,6 +478,7 @@ const generalLabels = {
   footer_desc: 'คำอธิบายท้ายเว็บ (Footer)'
 }
 
+// สเตตเก็บค่าข้อมูลติดต่อของมัสยิด
 const generalSettings = ref({
   mosque_name: '',
   address: '',
@@ -455,8 +489,10 @@ const generalSettings = ref({
   icon_url: ''
 })
 
+// โหลดข้อมูลการตั้งค่าเว็บไซต์จาก Database หลังบ้าน
 const { data: settings, refresh } = await useFetch('/api/admin/settings')
 
+// สเตตเก็บเนื้อหาหน้าเว็บแต่ละหน้าย่อยของระบบ
 const pageData = ref({
   navbar: { logo: '', icon: '', title: '' },
   index: { hero_title: '', hero_subtitle: '', hero_image: '', about_items: [] },
@@ -465,13 +501,14 @@ const pageData = ref({
   activities: { title: '', description: '', items: [] }
 })
 
+// คอยเฝ้าจับตาตัวแปร settings ที่ดึงมาเพื่อแปลงค่า JSON คืนใส่ State ปัจจุบันให้พร้อมสำหรับการแก้ไข
 watch(settings, (newVal) => {
   if (newVal) {
-    // Update general settings
+    // โหลดข้อมูลติดต่อทั่วไป
     for (const key of Object.keys(generalSettings.value)) {
       if (newVal[key]) generalSettings.value[key] = newVal[key]
     }
-    // Update page data
+    // โหลดหน้าข้อมูลต่างๆ
     for (const key of Object.keys(pageData.value)) {
       if (newVal[`page_${key}`]) {
         pageData.value[key] = JSON.parse(JSON.stringify(newVal[`page_${key}`]))
@@ -479,6 +516,8 @@ watch(settings, (newVal) => {
     }
   }
 }, { immediate: true })
+
+// --- ฟังก์ชันสำหรับการจัดการโครงสร้างไอเทมแบบ Dynamic (เพิ่ม/ลบ แถวและข้อมูล) ---
 
 function addAboutItem() {
   if (!pageData.value.index.about_items) pageData.value.index.about_items = []
@@ -513,7 +552,12 @@ function removeActivity(index) {
   }
 }
 
-// --- Unified Upload Helper ---
+/**
+ * ฟังก์ชันช่วยอัปโหลดไฟล์สื่อส่วนกลาง (Unified Upload Helper)
+ * - ส่งไฟล์รูปไปยัง Supabase Storage images Bucket
+ * - ตั้งค่า Cache Control 1 ชั่วโมง (3600 วินาที)
+ * - คืนค่า Public URL ของไฟล์ที่อัปโหลดสำเร็จแล้วกลับมา
+ */
 async function uploadToSupabase(file, folder) {
   const fileExt = file.name.split('.').pop()
   const fileName = `${Math.random().toString(36).slice(2)}_${Date.now()}.${fileExt}`
@@ -540,13 +584,12 @@ async function uploadToSupabase(file, folder) {
   }
 }
 
-// --- General Branding Logic ---
+// ฟังก์ชันสั่งอัปโหลดโลโก้/favicon ทั่วไป
 async function handleBrandingUpload(event, field) {
   const file = event.target.files[0]
   if (!file) return
   
-  // Preview
-  generalSettings.value[field] = URL.createObjectURL(file)
+  generalSettings.value[field] = URL.createObjectURL(file) // พรีวิวทันใจ
   
   try {
     const publicUrl = await uploadToSupabase(file, 'branding')
@@ -556,7 +599,7 @@ async function handleBrandingUpload(event, field) {
   }
 }
 
-// --- Navbar Image Logic ---
+// ฟังก์ชันสั่งอัปโหลดโลโก้ Navbar
 async function handleNavbarImageUpload(event, field) {
   const file = event.target.files[0]
   if (!file) return
@@ -571,7 +614,7 @@ async function handleNavbarImageUpload(event, field) {
   }
 }
 
-// --- Dynamic Items Logic ---
+// ฟังก์ชันสั่งอัปโหลดรูปหน้าแรก เกี่ยวกับมัสยิด
 async function handleAboutItemUpload(event, index) {
   const file = event.target.files[0]
   if (!file) return
@@ -586,7 +629,7 @@ async function handleAboutItemUpload(event, index) {
   }
 }
 
-// --- Activities Logic ---
+// ฟังก์ชันสั่งอัปโหลดรูปหน้าปกกิจกรรม
 async function handleActivityImageUpload(event, index) {
   const file = event.target.files[0]
   if (!file) return
@@ -601,6 +644,7 @@ async function handleActivityImageUpload(event, index) {
   }
 }
 
+// ฟังก์ชันสั่งอัปโหลดรูปหลายรูปใน อัลบั้มสไลด์ แกลเลอรีภาพย่อย
 async function handleActivityAlbumUpload(event, actIdx) {
   const files = event.target.files
   if (!files || files.length === 0) return
@@ -619,11 +663,12 @@ async function handleActivityAlbumUpload(event, actIdx) {
   }
 }
 
+// ฟังก์ชันสั่งลบรูปในอัลบั้มแกลเลอรีภาพกิจกรรมย่อย
 function removeActivityImage(actIdx, imgIdx) {
   pageData.value.activities.items[actIdx].images.splice(imgIdx, 1)
 }
 
-// --- Image Upload Logic (General) ---
+// ฟังก์ชันอัปโหลดรูปภาพครอบจักรวาล
 async function handleImageUpload(event, page, field) {
   const file = event.target.files[0]
   if (!file) return
@@ -639,7 +684,7 @@ async function handleImageUpload(event, page, field) {
   }
 }
 
-// --- Personnel Logic ---
+// ฟังก์ชันสั่งอัปโหลดภาพบุคลากรมัสยิด
 async function handlePersonnelImageUpload(event, index) {
   const file = event.target.files[0]
   if (!file) return
@@ -655,17 +700,22 @@ async function handlePersonnelImageUpload(event, index) {
   }
 }
 
+/**
+ * ฟังก์ชันบันทึกการตั้งค่าทุกแถว (ข้อมูลติดต่อ และข้อมูลหน้าเพจย่อยทั้งหมด)
+ * - รวบรวมฟังก์ชันส่งข้อมูล Post $fetch ทั้งหมดลงใน Promise.all เพื่อลดเวลาบันทึกและเซฟฐานข้อมูลแบบขนาน
+ * - แจ้งความสำเร็จเมื่อบันทึกการอัปเกรดฐานข้อมูลครบถ้วน และสั่งรีเฟรชข้อมูลหน้าแอดมิน settings ทันที
+ */
 async function saveAllSettings() {
   saving.value = true
   try {
     const promises = []
     
-    // Save general
+    // บันทึกกลุ่มข้อมูลติดต่อทั่วไปทีละรายการ
     for (const [key, value] of Object.entries(generalSettings.value)) {
       promises.push($fetch('/api/admin/settings', { method: 'POST', body: { key, value } }))
     }
     
-    // Save pages
+    // บันทึกข้อมูลแต่ละหน้าเว็บ (แปลงเป็น JSON String อัตโนมัติทางหลังบ้าน)
     for (const [page, data] of Object.entries(pageData.value)) {
       promises.push($fetch('/api/admin/settings', { method: 'POST', body: { key: `page_${page}`, value: data } }))
     }
@@ -683,11 +733,12 @@ async function saveAllSettings() {
 </script>
 
 <style scoped>
+/* สไตล์ซ่อนแท็บเลื่อน (Scrollbar) บนเบราว์เซอร์ต่างๆ เพื่อให้หน้าเมนูแลดูประณีต */
 .no-scrollbar::-webkit-scrollbar {
-  display: none;
+  display: none; /* Chrome, Safari */
 }
 .no-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+  -ms-overflow-style: none; /* IE, Edge */
+  scrollbar-width: none; /* Firefox */
 }
 </style>

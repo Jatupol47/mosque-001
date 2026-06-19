@@ -1,35 +1,47 @@
+// ==========================================
+// โครงสร้างฐานข้อมูลมัสยิดบ้านสมเด็จ (Prisma Database Schema)
+// ==========================================
+// ทำหน้าที่:
+// 1. กำหนดผู้สร้าง Client สำหรับเชื่อมต่อฐานข้อมูลในฝั่ง Javascript (prisma-client-js)
+// 2. ระบุผู้บริการโครงสร้างฐานข้อมูลปลายทาง (PostgreSQL)
+// 3. กำหนดนิยามตารางฐานข้อมูล: Donation (บริจาค), WebsiteSetting (ตั้งค่าเว็บ), VisitorLog (ล็อกผู้เข้าเว็บ)
+
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
+  url      = env("DATABASE_URL") // ใช้ตัวแปร DATABASE_URL จาก .env สำหรับติดต่อ DB
 }
 
+/// ตารางสำหรับจัดเก็บยอดเงินบริจาคและหลักฐาน (Donation Database Model)
 model Donation {
-  id          Int      @id @default(autoincrement())
-  amount      Float
-  donorName   String?
-  donorEmail  String?
-  donorPhone  String?
-  blessing    String?
-  slipUrl     String?
-  taxId       String?
-  address     String?
-  date        DateTime @default(now())
-  status      String   @default("pending")
+  id          Int      @id @default(autoincrement()) // ไอดีรหัสอ้างอิงบิล (รันออโต้)
+  amount      Float                                 // ยอดเงินบริจาค (ทศนิยม)
+  donorName   String?                               // ชื่อผู้ร่วมบริจาค (ค่าว่างได้)
+  donorEmail  String?                               // อีเมลสำหรับใบกำกับภาษี (ค่าว่างได้)
+  donorPhone  String?                               // เบอร์โทรติดต่อ (ค่าว่างได้)
+  blessing    String?                               // ข้อความอวยพร/คำแนะนำเพิ่มเติม (ค่าว่างได้)
+  slipUrl     String?                               // ลิงก์รูปหลักฐานสลิปโอนจาก Supabase (ค่าว่างได้)
+  taxId       String?                               // เลขประจำตัวผู้เสียภาษี 13 หลัก (ค่าว่างได้)
+  address     String?                               // ที่อยู่จัดส่งเอกสารใบอนุโมทนาบัตร (ค่าว่างได้)
+  date        DateTime @default(now())              // วันที่และเวลากดแจ้งบริจาค (ค่าตั้งต้นคือเวลาปัจจุบัน)
+  status      String   @default("pending")          // สถานะตรวจสอบสลิป (ค่าตั้งต้นคือ pending = รอแอดมินยืนยัน)
 }
 
+/// ตารางสำหรับจัดเก็บเนื้อหาตั้งค่าเว็บไซต์ (Website Settings Key-Value Store)
 model WebsiteSetting {
-  id    Int    @id @default(autoincrement())
-  key   String @unique
-  value String
+  id    Int    @id @default(autoincrement()) // รหัสการตั้งค่า
+  key   String @unique                       // คีย์อ้างอิงสำหรับตั้งค่า เช่น 'mosque_name', 'page_index'
+  value String                               // เนื้อหาการตั้งค่าในรูปแบบข้อความดิบหรือ JSON String
 }
 
+/// ตารางบันทึกการเข้าชมเว็บไซต์เพื่อทำรายงานสถิติวิเคราะห์ (Visitor Analytics Log Model)
 model VisitorLog {
-  id        Int      @id @default(autoincrement())
-  path      String
-  ip        String?
-  userAgent String?
-  createdAt DateTime @default(now())
+  id        Int      @id @default(autoincrement()) // รหัสรายการล็อก
+  path      String                                 // เส้นทางหน้าเพจที่ผู้เข้าชมเปิด เช่น '/' หรือ '/donate'
+  ip        String?                                // หมายเลข IP Address ของผู้เข้าชม (ค่าว่างได้)
+  userAgent String?                                // ข้อมูลรายละเอียดเครื่องมือและบราวเซอร์ของผู้เข้าใช้งาน (ค่าว่างได้)
+  createdAt DateTime @default(now())              // วันเวลาที่บันทึกข้อมูลล็อกการเปิดหน้าเว็บ
 }
